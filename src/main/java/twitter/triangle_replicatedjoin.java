@@ -153,7 +153,7 @@ public class triangle_replicatedjoin extends Configured implements Tool {
 
     public int run(final String[] args) throws Exception {
         JobControl jobControl = new JobControl("jobChain");
-        String cachefilename = "edge_toy7.csv";
+        String cachefilename = "edges.csv";
 
         // job one: join edge into path2
         final Configuration conf1 = getConf();
