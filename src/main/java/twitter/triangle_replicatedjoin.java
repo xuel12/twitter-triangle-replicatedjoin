@@ -48,7 +48,8 @@ public class triangle_replicatedjoin extends Configured implements Tool {
                 Path edge_file_location=new Path(context.getConfiguration().get("edge.file.path") + '/' +
                         context.getConfiguration().get("edge.file.name"));//Location of file in HDFS
                 FileSystem fs = FileSystem.get(new Configuration());
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fs.open(edge_file_location)));                String line;
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fs.open(edge_file_location)));
+                String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     String[] field = line.split(DELIMITER, -1);
                     String follower = field[0];
