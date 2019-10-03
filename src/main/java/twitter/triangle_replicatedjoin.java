@@ -19,6 +19,7 @@ import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,11 +44,11 @@ public class triangle_replicatedjoin extends Configured implements Tool {
         @Override
         public void setup(Context context) throws IOException {
 
-            String edge_file_location = context.getConfiguration().get("edge.file.path") + '/' +
-                    context.getConfiguration().get("edge.file.name");
             try {
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(edge_file_location));
-                String line;
+                Path edge_file_location=new Path(context.getConfiguration().get("edge.file.path") + '/' +
+                        context.getConfiguration().get("edge.file.name"));//Location of file in HDFS
+                FileSystem fs = FileSystem.get(new Configuration());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fs.open(edge_file_location)));                String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     String[] field = line.split(DELIMITER, -1);
                     String follower = field[0];
@@ -102,10 +103,11 @@ public class triangle_replicatedjoin extends Configured implements Tool {
 
         @Override
         public void setup(Context context) throws IOException {
-            String edge_file_location = context.getConfiguration().get("edge.file.path") + '/' +
-                    context.getConfiguration().get("edge.file.name");
             try {
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(edge_file_location));
+                Path edge_file_location=new Path(context.getConfiguration().get("edge.file.path") + '/' +
+                        context.getConfiguration().get("edge.file.name"));//Location of file in HDFS
+                FileSystem fs = FileSystem.get(new Configuration());
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fs.open(edge_file_location)));
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     String[] field = line.split(DELIMITER, -1);
