@@ -2,7 +2,7 @@
 
 # Customize these paths for your environment.
 # -----------------------------------------------------------
-# hadoop.root=/home/joe/tools/hadoop/hadoop-2.9.1
+# hadoop.root=/home/xuel12/hadoop-2.8.5
 hadoop.root=/usr/local/opt/hadoop-2.8.5
 jar.name=triangle-1.0.jar
 jar.path=target/${jar.name}
