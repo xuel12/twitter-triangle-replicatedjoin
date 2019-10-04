@@ -21,7 +21,7 @@ aws.subnet.id=subnet-6356553a
 aws.input=input
 aws.output=output
 aws.log.dir=log
-aws.num.nodes=5
+aws.num.nodes=3
 aws.instance.type=m4.large
 # -----------------------------------------------------------
 

@@ -36,6 +36,8 @@ public class triangle extends Configured implements Tool {
     private static final Logger logger = LogManager.getLogger(triangle.class);
     public static final Integer MAX = 1000;
     public static final String cachefilename = "edges.csv";
+//    public static final String cachefilepath = "aws-logs-354124988676-us-east-1-twitter.triangle";
+    public static final String cachefilepath = "input";
 
     public static class path2Mapper extends Mapper<Object, Text, Text, IntWritable> {
 
@@ -47,9 +49,9 @@ public class triangle extends Configured implements Tool {
         public void setup(Context context) throws IOException {
 
             try {
-                Path edge_file_location=new Path(context.getConfiguration().get("edge.file.path") + '/' +
-                        context.getConfiguration().get("edge.file.name"));//Location of file in HDFS
-                FileSystem fs = FileSystem.get(new Configuration());
+                FileSystem fs = FileSystem.get(new URI(cachefilepath+'/'), context.getConfiguration());
+                Path edge_file_location=new Path(cachefilepath + '/' + cachefilename);//Location of file in HDFS
+//                FileSystem fs = FileSystem.get(new Configuration());
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fs.open(edge_file_location)));
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
@@ -107,9 +109,12 @@ public class triangle extends Configured implements Tool {
         @Override
         public void setup(Context context) throws IOException {
             try {
-                Path edge_file_location=new Path(context.getConfiguration().get("edge.file.path") + '/' +
-                        context.getConfiguration().get("edge.file.name"));//Location of file in HDFS
-                FileSystem fs = FileSystem.get(new Configuration());
+                FileSystem fs = FileSystem.get(new URI(cachefilepath+'/'), context.getConfiguration());
+                Path edge_file_location=new Path(cachefilepath + '/' + cachefilename);//Location of file in HDFS
+
+                // Path edge_file_location=new Path(context.getConfiguration().get("edge.file.path") + '/' +
+//                        context.getConfiguration().get("edge.file.name"));//Location of file in HDFS
+//                FileSystem fs = FileSystem.get(new Configuration());
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fs.open(edge_file_location)));
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
@@ -158,8 +163,9 @@ public class triangle extends Configured implements Tool {
 
         // job one: join edge into path2
         final Configuration conf1 = getConf();
-        conf1.set("edge.file.path", args[0]);
+        conf1.set("edge.file.path", cachefilepath);
         conf1.set("edge.file.name", cachefilename);
+
         final Job job1 = Job.getInstance(conf1, "path2");
         job1.setJarByClass(triangle.class);
 
@@ -183,7 +189,6 @@ public class triangle extends Configured implements Tool {
 
         final Job job2 = Job.getInstance(conf2, "path3");
         job2.setJarByClass(triangle.class);
-
         FileInputFormat.setInputPaths(job2, new Path(args[1]+"/temp1"));
         FileOutputFormat.setOutputPath(job2, new Path(args[1] + "/final"));
         job2.setInputFormatClass(KeyValueTextInputFormat.class);
