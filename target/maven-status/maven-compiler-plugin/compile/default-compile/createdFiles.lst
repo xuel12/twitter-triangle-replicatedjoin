@@ -1,5 +1,5 @@
-twitter/triangle_replicatedjoin$path3Mapper.class
-twitter/triangle_replicatedjoin.class
-twitter/triangle_replicatedjoin$path3Reducer.class
-twitter/triangle_replicatedjoin$path2Reducer.class
-twitter/triangle_replicatedjoin$path2Mapper.class
+twitter/triangle$path2Mapper.class
+twitter/triangle$path3Reducer.class
+twitter/triangle$path2Reducer.class
+twitter/triangle$path3Mapper.class
+twitter/triangle.class

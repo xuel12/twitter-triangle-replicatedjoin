@@ -17,9 +17,10 @@ import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,10 +31,11 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
-public class triangle_replicatedjoin extends Configured implements Tool {
+public class triangle extends Configured implements Tool {
 
-    private static final Logger logger = LogManager.getLogger(triangle_replicatedjoin.class);
+    private static final Logger logger = LogManager.getLogger(triangle.class);
     public static final Integer MAX = 1000;
+    public static final String cachefilename = "edges.csv";
 
     public static class path2Mapper extends Mapper<Object, Text, Text, IntWritable> {
 
@@ -153,14 +155,13 @@ public class triangle_replicatedjoin extends Configured implements Tool {
 
     public int run(final String[] args) throws Exception {
         JobControl jobControl = new JobControl("jobChain");
-        String cachefilename = "edges.csv";
 
         // job one: join edge into path2
         final Configuration conf1 = getConf();
         conf1.set("edge.file.path", args[0]);
         conf1.set("edge.file.name", cachefilename);
         final Job job1 = Job.getInstance(conf1, "path2");
-        job1.setJarByClass(triangle_replicatedjoin.class);
+        job1.setJarByClass(triangle.class);
 
         FileInputFormat.setInputPaths(job1, new Path(args[0]));
         FileOutputFormat.setOutputPath(job1, new Path(args[1]+"/temp1"));
@@ -181,7 +182,7 @@ public class triangle_replicatedjoin extends Configured implements Tool {
         conf2.set("edge.file.name", cachefilename);
 
         final Job job2 = Job.getInstance(conf2, "path3");
-        job2.setJarByClass(triangle_replicatedjoin.class);
+        job2.setJarByClass(triangle.class);
 
         FileInputFormat.setInputPaths(job2, new Path(args[1]+"/temp1"));
         FileOutputFormat.setOutputPath(job2, new Path(args[1] + "/final"));
@@ -219,18 +220,18 @@ public class triangle_replicatedjoin extends Configured implements Tool {
         int code = job2.waitForCompletion(true) ? 0 : 1;
         if (code == 0) {
             // Create a new file and write data to it.
-            FileSystem fileSystem = FileSystem.get(conf1);
-            Path path = new Path(args[1] + "/final/count.txt");
-            FSDataOutputStream out = fileSystem.create(path);
+            FileSystem fileSystem = FileSystem.get(URI.create(args[1] + "/final/"),conf2);
+            FSDataOutputStream fsDataOutputStream = fileSystem.create(new Path(args[1] + "/final" + "/trianglecount"));
+            PrintWriter writer  = new PrintWriter(fsDataOutputStream);
 
             for (Counter counter : job2.getCounters().getGroup(path3Reducer.TRIANGLE_COUNTER)) {
                 String fileContent = "Number of triangle (unique):" + '\t' + counter.getValue()/3;
-                out.writeBytes(fileContent);
+                writer.write(fileContent);
                 System.out.println("Number of triangle (unique):" + '\t' + counter.getValue()/3);
             }
             // Close all the file descripters
-            out.close();
-            fileSystem.close();
+            writer.close();
+            fsDataOutputStream.close();
         }
         return (code);
     }
@@ -241,7 +242,7 @@ public class triangle_replicatedjoin extends Configured implements Tool {
         }
 
         try {
-            ToolRunner.run(new triangle_replicatedjoin(), args);
+            ToolRunner.run(new triangle(), args);
         } catch (final Exception e) {
             logger.error("", e);
         }

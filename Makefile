@@ -4,9 +4,9 @@
 # -----------------------------------------------------------
 # hadoop.root=/home/xuel12/hadoop-2.8.5
 hadoop.root=/usr/local/opt/hadoop-2.8.5
-jar.name=triangle-1.0.jar
+jar.name=triangle-replicatedjoin-1.0.jar
 jar.path=target/${jar.name}
-job.name=twitter.triangle_replicatedjoin
+job.name=twitter.triangle
 local.input=input
 local.output=output
 # Pseudo-Cluster Execution
@@ -21,7 +21,7 @@ aws.subnet.id=subnet-6356553a
 aws.input=input
 aws.output=output
 aws.log.dir=log
-aws.num.nodes=2
+aws.num.nodes=5
 aws.instance.type=m4.large
 # -----------------------------------------------------------
 
@@ -111,7 +111,7 @@ upload-app-aws:
 # Main EMR launch.
 aws: jar upload-app-aws delete-output-aws
 	aws emr create-cluster \
-		--name "${job.name} MR Cluster" \
+		--name "${job.name} ReplicatedJoin Cluster" \
 		--release-label ${aws.emr.release} \
 		--instance-groups '[{"InstanceCount":${aws.num.nodes},"InstanceGroupType":"CORE","InstanceType":"${aws.instance.type}"},{"InstanceCount":1,"InstanceGroupType":"MASTER","InstanceType":"${aws.instance.type}"}]' \
 	    --applications Name=Hadoop \
@@ -125,6 +125,7 @@ aws: jar upload-app-aws delete-output-aws
 download-output-aws: clean-local-output
 	mkdir ${local.output}
 	aws s3 sync s3://${aws.bucket.name}/${aws.output} ${local.output}
+	aws s3 sync s3://${aws.bucket.name}/${aws.log.dir} log
 
 # Change to standalone mode.
 switch-standalone:

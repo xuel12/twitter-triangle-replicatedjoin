@@ -5,6 +5,7 @@
 data/
 output/
 doc/
+result/
 
 # Log file
 *.log
